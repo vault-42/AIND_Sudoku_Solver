@@ -1,8 +1,10 @@
 from collections import Counter
 import re
+
 assignments = []
 # diagonal_sudoku True to play by diagonal sudoku rules or False for normal sudoku rules
-diagonal_sudoku=True
+DIAGONAL_SUDOKU = True
+
 
 def assign_value(values, box, value):
     """
@@ -16,8 +18,9 @@ def assign_value(values, box, value):
 
     values[box] = value
     if len(value) == 1:
-        assignments.append(values.copy()) 
+        assignments.append(values.copy())
     return values
+
 
 def naked_twins(values):
     """Eliminate values using the naked twins strategy.
@@ -30,19 +33,21 @@ def naked_twins(values):
     for unit in unitlist:
         unitvalues = [values[box] for box in unit]
         # Find all instances of naked twins
-        towDuplicateDigits = [boxVal for boxVal,count in Counter(unitvalues).items() if count==2 and len(boxVal) == 2]
+        two_duplicate_digits = [boxVal for boxVal, count in Counter(unitvalues).items() if
+                                count == 2 and len(boxVal) == 2]
         # Eliminate the naked twins as possibilities for their peers
-        for duplicate in towDuplicateDigits:
-            rmvDigits = duplicate[0] + '|' + duplicate[1]
+        for duplicate in two_duplicate_digits:
+            remove_digits = duplicate[0] + '|' + duplicate[1]
             for box in unit:
                 if duplicate != values[box]:
-                    assign_value(values,box,re.sub(rmvDigits, '', values[box]))
-        
+                    assign_value(values, box, re.sub(remove_digits, '', values[box]))
     return values
-        
+
+
 def cross(A, B):
-    "Cross product of elements in A and elements in B."
-    return [s+t for s in A for t in B]
+    """Cross product of elements in A and elements in B."""
+    return [s + t for s in A for t in B]
+
 
 rows = 'ABCDEFGHI'
 cols = '123456789'
@@ -56,16 +61,17 @@ Terminology:
 boxes = cross(rows, cols)
 row_units = [cross(r, cols) for r in rows]
 column_units = [cross(rows, c) for c in cols]
-square_units = [cross(rs, cs) for rs in ('ABC','DEF','GHI') for cs in ('123','456','789')]
+square_units = [cross(rs, cs) for rs in ('ABC', 'DEF', 'GHI') for cs in ('123', '456', '789')]
 diagonal_units = []
-diagonal_units = [s+t for (s,t) in zip(rows,cols)]
-diagonal_units = [diagonal_units] + [[s+t for (s,t) in zip(reversed(rows),cols)]]
-if diagonal_sudoku:
+diagonal_units = [s + t for (s, t) in zip(rows, cols)]
+diagonal_units = [diagonal_units] + [[s + t for (s, t) in zip(reversed(rows), cols)]]
+if DIAGONAL_SUDOKU:
     unitlist = row_units + column_units + square_units + diagonal_units
-else: #"Normal" Sudoku
+else:  # "Normal" Sudoku
     unitlist = row_units + column_units + square_units
 units = dict((s, [u for u in unitlist if s in u]) for s in boxes)
-peers = dict((s, set(sum(units[s],[]))-set([s])) for s in boxes)
+peers = dict((s, set(sum(units[s], [])) - {s}) for s in boxes)
+
 
 def grid_values(grid):
     """
@@ -87,6 +93,7 @@ def grid_values(grid):
     assert len(chars) == 81
     return dict(zip(boxes, chars))
 
+
 def display(values):
     """
     Display the values as a 2-D grid.
@@ -95,12 +102,13 @@ def display(values):
     Returns:
         None
     """
-    width = 1+max(len(values[s]) for s in boxes)
-    line = '+'.join(['-'*(width*3)]*3)
+    width = 1 + max(len(values[s]) for s in boxes)
+    line = '+'.join(['-' * (width * 3)] * 3)
     for r in rows:
-        print(''.join(values[r+c].center(width)+('|' if c in '36' else '') for c in cols))
+        print(''.join(values[r + c].center(width) + ('|' if c in '36' else '') for c in cols))
         if r in 'CF': print(line)
     return
+
 
 def eliminate(values):
     """
@@ -115,8 +123,9 @@ def eliminate(values):
     for box in solved_values:
         digit = values[box]
         for peer in peers[box]:
-            assign_value(values, peer, values[peer].replace(digit,''))
+            assign_value(values, peer, values[peer].replace(digit, ''))
     return values
+
 
 def only_choice(values):
     """
@@ -131,9 +140,10 @@ def only_choice(values):
         for digit in '123456789':
             dplaces = [box for box in unit if digit in values[box]]
             if len(dplaces) == 1:
-                #values[dplaces[0]] = digit
+                # values[dplaces[0]] = digit
                 assign_value(values, dplaces[0], digit)
     return values
+
 
 def reduce_puzzle(values):
     """
@@ -164,6 +174,7 @@ def reduce_puzzle(values):
             return False
     return values
 
+
 def search(values):
     """
     Using depth-first search and propagation, try all possible values.
@@ -172,22 +183,23 @@ def search(values):
     Returns:
         The resulting sudoku in dictionary form.
     """
-    # First, reduce the puzzle using the previous function
+    # First, reduce the puzzle using the constraint propagation strategies
     values = reduce_puzzle(values)
     if values is False:
-        return False # Failed earlier
+        return False  # Failed earlier
     if all(len(values[s]) == 1 for s in boxes):
-        return values # Solved
-    #Choose one of the unfilled squares with the fewest possibilities
-    n,s = min((len(values[s]), s) for s in boxes if len(values[s]) > 1)
+        return values  # Solved
+    # Choose one of the unfilled squares with the fewest possibilities
+    n, s = min((len(values[s]), s) for s in boxes if len(values[s]) > 1)
     # Now using recurrence to solve each one of the resulting sudokus,
-    #and if one returns a value (not False), return the answer.
+    # and if one returns a value (not False), return the answer.
     for value in values[s]:
         new_sudoku = values.copy()
         new_sudoku[s] = value
         attempt = search(new_sudoku)
         if attempt:
             return attempt
+
 
 def solve(grid):
     """
@@ -201,6 +213,7 @@ def solve(grid):
     values = grid_values(grid)
     return search(values)
 
+
 if __name__ == '__main__':
 
     diag_sudoku_grid = '2.............62....1....7...6..8...3...9...7...6..4...4....8....52.............3'
@@ -208,9 +221,11 @@ if __name__ == '__main__':
 
     try:
         from visualize import visualize_assignments
+
         visualize_assignments(assignments)
 
     except SystemExit:
         pass
     except:
         print('We could not visualize your board due to a pygame issue. Not a problem! It is not a requirement.')
+
