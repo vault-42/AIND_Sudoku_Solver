@@ -29,12 +29,12 @@ The Sudoku solver passed all unit tests and generated the following result (pyga
 ![Alt text](/images/SudokuSolver_PygameOutput.png?raw=true "Pygame Output")
 
 ### Summary
-This program solves 9x9 grid Sudoku puzzles using constraint propogation and search techniques. As you may recall from the Sudoku craze from the '00s, the objective of Sudoku is to fill in a square 9x9 grid of boxes with digits 1 through 9 so that each unit contains all of the digits 1 through 9 without repeating. A unit in "normal" sudoku is a column, row or one of the nine non-overlapping 3x3 subgrids. For each box, all the other boxes that share the same row, column, or subgrid will be called a "peer". The initial puzzle is the grid only partially filled and it is up to the player to fill in the remaining boxes following the rules outlined above. The picture below shows the initial puzzle to the left and the completed puzzle to the right. Image modified from original artwork done by [1].
+This program solves 9x9 grid Sudoku puzzles using constraint propogation and search techniques. As you may recall from the Sudoku craze from the '00s, the objective of Sudoku is to fill in a square 9x9 grid of boxes with digits 1 through 9 so that each unit contains all of the digits 1 through 9 without repeating. A unit in "normal" sudoku is a column, row or one of the nine non-overlapping 3x3 subgrids. For each box, all the other boxes that share the same row, column, or subgrid will be called a "peer". The initial puzzle is the grid only partially filled and it is up to the player to fill in the remaining boxes following the rules outlined above. The picture below shows the initial puzzle to the left and the completed puzzle to the right. Image modified from original artwork done by Tim Stellmach<sup>[1](#footnote1)</sup>.
 
 ![Alt text](/images/Sudoku_Puzzle_Example.jpg?raw=true)
 
 #### Constraint Propagation
-In order to solve Sudoku puzzles players typically keep track of all the possible values a box could have and then work to eliminate potential boxes using strategies around the Sudoku rules. A more in depth article on Sudoku strategies can be found at [2]. This program runs a while loop (for as long as forward progress can be made) over three possible value reduction strategies:
+In order to solve Sudoku puzzles players typically keep track of all the possible values a box could have and then work to eliminate potential boxes using strategies around the Sudoku rules. A more in depth article on Sudoku strategies can be found on the Sudoku Dragon website<sup>[2](#footnote2)</sup>. This program runs a while loop (for as long as forward progress can be made) over three possible value reduction strategies:
 * 'Elimination' - For each box with a single value, remove its value from the possible values of all its peers.
 
 ```python
@@ -102,7 +102,7 @@ def naked_twins(values):
 ```
 
 #### Search
-If the constraint propagation strategies can no longer make any reductions and the puzzle is still not solved, the program will use a search strategy to find a solution.  The program implements a depth-first search by starting with one of the unfilled squares with the fewest possibilities and trying to solve the puzzle by picking a value for each unfilled box from its remaining possibilities. This is essentially a trial and error approach for solving the puzzle. Peter Norvig's Solving Every Sudoku Puzzle [3] contains some performance analysis showing that depth-first search with constraint propagation strategies can solve "hard" Sudoku puzzles in seconds.
+If the constraint propagation strategies can no longer make any reductions and the puzzle is still not solved, the program will use a search strategy to find a solution.  The program implements a depth-first search by starting with one of the unfilled squares with the fewest possibilities and trying to solve the puzzle by picking a value for each unfilled box from its remaining possibilities. This is essentially a trial and error approach for solving the puzzle. Peter Norvig's Solving Every Sudoku Puzzle<sup>[3](#footnote3)</sup> contains some performance analysis showing that depth-first search with constraint propagation strategies can solve "hard" Sudoku puzzles in seconds.
 
 ```python
 def search(values):
@@ -153,8 +153,8 @@ peers = dict((s, set(sum(units[s],[]))-set([s])) for s in boxes)
 
 
 ### References
-[1] Tim Stellmach, CC0, https://commons.wikimedia.org/w/index.php?curid=57831926
+<a name="footnote1">[1]</a> Tim Stellmach, CC0, https://commons.wikimedia.org/w/index.php?curid=57831926
 
-[2] Sudoku Dragon, http://www.sudokudragon.com/sudokustrategy.htm
+<a name="footnote2">[2]</a> Sudoku Dragon, http://www.sudokudragon.com/sudokustrategy.htm
 
-[3] Peter Norvig, http://norvig.com/sudoku.html
+<a name="footnote3">[3]</a> Peter Norvig, http://norvig.com/sudoku.html
